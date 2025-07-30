@@ -1,0 +1,19 @@
+server:
+  port: ${SERVER_PORT}
+
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/karangwaajika/resto-config.git
+          clone-on-start: true
+          default-label: main
+          username: karangwaajika
+          password: ${GITHUB-TOKEN}
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA-CLIENT-URL}
