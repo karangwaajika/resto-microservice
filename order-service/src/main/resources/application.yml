@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: user-service
+    name: order-service
 
   datasource:
     url: ${SPRING_DATASOURCE_URL}
@@ -17,14 +17,6 @@ spring:
 
   config:
     import: optional:configserver:${CONFIG-SERVER-URL}
-
-  kafka:
-    bootstrap-servers: localhost:9092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-    topic:
-      user-created: user.created
 
 eureka:
   client:
