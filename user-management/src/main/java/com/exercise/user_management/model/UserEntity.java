@@ -1,11 +1,11 @@
 package com.exercise.user_management.model;
 
-import com.exercise.user_management.util.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.exercise.util.Role;
 
 @Entity
 @Table(name = "users")

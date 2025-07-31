@@ -1,6 +1,6 @@
 package com.exercise.user_management.dto;
 
-import com.exercise.user_management.util.Role;
+import org.exercise.util.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

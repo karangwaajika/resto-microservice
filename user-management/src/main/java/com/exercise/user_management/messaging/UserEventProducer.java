@@ -1,6 +1,6 @@
 package com.exercise.user_management.messaging;
 
-import com.exercise.user_management.event.UserCreatedEvent;
+import org.exercise.event.UserCreatedEvent;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 

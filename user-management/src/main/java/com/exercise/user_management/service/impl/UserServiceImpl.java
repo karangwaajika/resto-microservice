@@ -2,7 +2,6 @@ package com.exercise.user_management.service.impl;
 
 import com.exercise.user_management.dto.UserRegisterDto;
 import com.exercise.user_management.dto.UserResponseDto;
-import com.exercise.user_management.event.UserCreatedEvent;
 import com.exercise.user_management.exception.UserExistsException;
 import com.exercise.user_management.mapper.UserMapper;
 import com.exercise.user_management.messaging.UserEventProducer;
@@ -10,6 +9,8 @@ import com.exercise.user_management.model.UserEntity;
 import com.exercise.user_management.repository.UserRepository;
 import com.exercise.user_management.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.exercise.event.UserCreatedEvent;
+import org.exercise.util.Role;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,11 +39,14 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = this.userMapper.toEntity(userDto);
         UserEntity savedUser = this.userRepository.save(userEntity);
 
-        // populate contents
-        userEventProducer.sendUserCreatedEvent(
-                new UserCreatedEvent(savedUser.getId(), savedUser.getEmail(), savedUser.getRole().name())
-        );
 
+        UserCreatedEvent userCreatedEvent = UserCreatedEvent.builder()
+                .id(savedUser.getId())
+                .email(savedUser.getEmail())
+                .role(savedUser.getRole())
+                .build();
+        // populate contents
+        userEventProducer.sendUserCreatedEvent(userCreatedEvent);
 
         return this.userMapper.toDto(savedUser);
     }
