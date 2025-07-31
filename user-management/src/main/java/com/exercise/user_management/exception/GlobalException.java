@@ -3,11 +3,10 @@ package com.exercise.user_management.exception;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
@@ -19,63 +18,68 @@ import java.util.Map;
 public class GlobalException {
 
     @ExceptionHandler(UserExistsException.class)
-    public Mono<ResponseEntity<Map<String, Object>>> handleUserExists(UserExistsException exception, ServerWebExchange exchange) {
+    public ResponseEntity<?> handleUserExists
+            (UserExistsException exception, WebRequest webRequest) {
         Map<String, Object> body = new HashMap<>();
         body.put("code", HttpStatus.CONFLICT.value());
         body.put("timestamp", LocalDateTime.now());
         body.put("message", exception.getMessage());
-        body.put("path", exchange.getRequest().getPath().value());
-        // sessionId not always present in WebFlux; if needed, implement differently
-        return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(body));
+        body.put("path", webRequest.getContextPath());
+        body.put("sessionId", webRequest.getSessionId());
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
+
     @ExceptionHandler(UserNotFoundException.class)
-    public Mono<ResponseEntity<Map<String, Object>>> handleUserNotFound(UserNotFoundException exception, ServerWebExchange exchange) {
+    public ResponseEntity<?> handleUserNotFound(
+            UserNotFoundException exception, WebRequest webRequest) {
         Map<String, Object> body = new HashMap<>();
         body.put("code", HttpStatus.NOT_FOUND.value());
         body.put("timestamp", LocalDateTime.now());
         body.put("message", exception.getMessage());
-        body.put("path", exchange.getRequest().getPath().value());
-        return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(body));
-    }
-
-    @ExceptionHandler(BadCredentialsException.class)
-    public Mono<ResponseEntity<Map<String, Object>>> handleBadCredentialsException(BadCredentialsException exception, ServerWebExchange exchange) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("code", HttpStatus.UNAUTHORIZED.value());
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", exception.getMessage());
-        body.put("path", exchange.getRequest().getPath().value());
-        return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body));
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    public Mono<ResponseEntity<Map<String, Object>>> handleAccessDeniedException(AccessDeniedException exception, ServerWebExchange exchange) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("code", HttpStatus.FORBIDDEN.value());
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", exception.getMessage());
-        body.put("path", exchange.getRequest().getPath().value());
-        return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).body(body));
+        body.put("path", webRequest.getContextPath());
+        body.put("sessionId", webRequest.getSessionId());
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
-    public Mono<ResponseEntity<Map<String, Object>>> handleException(Exception exception, ServerWebExchange exchange) {
+    public ResponseEntity<?> handleException
+            (Exception exception, WebRequest webRequest) {
         Map<String, Object> body = new HashMap<>();
         body.put("code", HttpStatus.BAD_REQUEST.value());
         body.put("timestamp", LocalDateTime.now());
         body.put("message", exception.getMessage());
-        body.put("path", exchange.getRequest().getPath().value());
-        return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body));
+        body.put("path", webRequest.getContextPath());
+        body.put("sessionId", webRequest.getSessionId());
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Error.class)
-    public Mono<ResponseEntity<Map<String, Object>>> handleError(Error error, ServerWebExchange exchange) {
+    public ResponseEntity<?> handleError
+            (Exception exception, WebRequest webRequest) {
         Map<String, Object> body = new HashMap<>();
         body.put("code", HttpStatus.INTERNAL_SERVER_ERROR.value());
         body.put("timestamp", LocalDateTime.now());
-        body.put("message", error.getMessage());
-        body.put("path", exchange.getRequest().getPath().value());
-        return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body));
+        body.put("message", exception.getMessage());
+        body.put("path", webRequest.getContextPath());
+        body.put("sessionId", webRequest.getSessionId());
+        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<Map<String, Object>> handle404(NoHandlerFoundException ex) {
+        Map<String, Object> body = Map.of(
+                "status", 404,
+                "error", "Not Found",
+                "path", ex.getRequestURL()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleUnauthorized(AccessDeniedException ex) {
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(Map.of("Error", ex.getMessage()));
     }
 }

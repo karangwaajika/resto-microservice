@@ -19,14 +19,23 @@ spring:
     import: optional:configserver:${CONFIG-SERVER-URL}
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: pkc-619z3.us-east1.gcp.confluent.cloud:9092
+    properties:
+      sasl.mechanism: PLAIN
+      sasl.jaas.config: >
+        org.apache.kafka.common.security.plain.PlainLoginModule required
+        username='${KAFKA_API_KEY}'
+        password='${KAFKA_API_SECRET}';
+      security.protocol: SASL_SSL
+      session.timeout.ms: 45000
+
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-    topic:
-      user-created: user.created
-
 eureka:
   client:
     service-url:
       defaultZone: ${EUREKA-CLIENT-URL}
+logging:
+  level:
+    org.apache.kafka: DEBUG

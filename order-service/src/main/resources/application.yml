@@ -18,6 +18,22 @@ spring:
   config:
     import: optional:configserver:${CONFIG-SERVER-URL}
 
+  kafka:
+    bootstrap-servers: pkc-619z3.us-east1.gcp.confluent.cloud:9092
+    properties:
+      security.protocol: SASL_SSL
+      sasl.mechanism: PLAIN
+      sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required \
+        username="DJYPPZ44RFAQYISY" \
+        password="cflt8xJSYucZR8bObuWHH2FbExQUdk1LmDJ/gdrIPVVsub2oZKvAdRW/vZKPakTA";
+      session.timeout.ms: 45000
+
+    consumer:
+      group-id: order-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
 eureka:
   client:
     service-url:
