@@ -38,6 +38,14 @@ spring:
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
         spring.json.value.default.type: org.exercise.event.UserCreatedEvent
         spring.json.trusted.packages: "*"
+  rabbitmq:
+    host: ${RABBIT_HOSTNAME}
+    port: ${RABBIT_PORT}
+    username: ${RABBIT_USERNAME}
+    password: ${RABBIT_PASSWORD}
+    virtual-host: ${RABBIT_VHOST}
+    ssl:
+      enabled: true
 eureka:
   client:
     service-url:

@@ -4,11 +4,13 @@ import com.exercise.user_management.dto.UserRegisterDto;
 import com.exercise.user_management.dto.UserResponseDto;
 import com.exercise.user_management.exception.UserExistsException;
 import com.exercise.user_management.mapper.UserMapper;
+import com.exercise.user_management.messaging.RabbitMQProducer;
 import com.exercise.user_management.messaging.UserEventProducer;
 import com.exercise.user_management.model.UserEntity;
 import com.exercise.user_management.repository.UserRepository;
 import com.exercise.user_management.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.exercise.event.StartCookingCommand;
 import org.exercise.event.UserCreatedEvent;
 import org.exercise.util.Role;
 import org.springframework.data.domain.Page;
@@ -25,6 +27,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final UserEventProducer userEventProducer;
+    private final RabbitMQProducer rabbitMQProducer;
 
     @Override
     public UserResponseDto create(UserRegisterDto userDto) {
@@ -47,6 +50,10 @@ public class UserServiceImpl implements UserService {
                 .build();
         // populate contents
         userEventProducer.sendUserCreatedEvent(userCreatedEvent);
+
+        // using rabbitMQ
+        rabbitMQProducer.sendStartCookingCommand(
+                new StartCookingCommand(savedUser.getId(), savedUser.getEmail()));
 
         return this.userMapper.toDto(savedUser);
     }
